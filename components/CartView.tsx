@@ -16,7 +16,7 @@ interface CartViewProps {
 const AddressForm: React.FC<{ address: Address; setAddress: (address: Address) => void; isFormValid: boolean; }> = ({ address, setAddress, isFormValid }) => {
   const towers = Array.from({ length: 22 }, (_, i) => i + 1);
 
-  // Generate combined floor+flat codes (001–006, 101–106, ... 1401–1406)
+  // Combined floor+flat options like 001–006, 101–106, … 1401–1406
   const flats: { value: string; label: string }[] = [];
   for (let floor = 0; floor <= 14; floor++) {
     for (let flat = 1; flat <= 6; flat++) {
@@ -62,32 +62,6 @@ const AddressForm: React.FC<{ address: Address; setAddress: (address: Address) =
         </select>
       </div>
 
-      {/* Optional Name Field */}
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name (Optional)</label>
-        <input
-          type="text"
-          id="name"
-          value={address.name || ''}
-          onChange={e => setAddress({ ...address, name: e.target.value })}
-          placeholder="Enter name"
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-        />
-      </div>
-
-      {/* Optional Phone Field */}
-      <div>
-        <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone (Optional)</label>
-        <input
-          type="tel"
-          id="phone"
-          value={address.phone || ''}
-          onChange={e => setAddress({ ...address, phone: e.target.value })}
-          placeholder="Enter phone number"
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-        />
-      </div>
-
       {!isFormValid && (
         <p className="text-red-500 text-xs mt-1">Please select both tower and flat.</p>
       )}
@@ -96,7 +70,7 @@ const AddressForm: React.FC<{ address: Address; setAddress: (address: Address) =
 };
 
 const CartView: React.FC<CartViewProps> = ({ cart, totalPrice, onClose, onUpdateQuantity, onConfirmOrder, orderStatus, errorMessage, onPlaceAnotherOrder }) => {
-  const [address, setAddress] = useState<Address>({ tower: '', flat: '', name: '', phone: '' });
+  const [address, setAddress] = useState<Address>({ tower: '', flat: '' });
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
   const isFormValid = !!(address.tower && address.flat);
