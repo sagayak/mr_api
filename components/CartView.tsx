@@ -16,13 +16,15 @@ interface CartViewProps {
 const AddressForm: React.FC<{ address: Address; setAddress: (address: Address) => void; isFormValid: boolean; }> = ({ address, setAddress, isFormValid }) => {
   const towers = Array.from({ length: 22 }, (_, i) => i + 1);
 
-  // Create combined floor-flat options like 001–006, 101–106, … 1401–1406
-  const flats = [];
+  // Generate combined floor+flat codes (001–006, 101–106, ... 1401–1406)
+  const flats: { value: string; label: string }[] = [];
   for (let floor = 0; floor <= 14; floor++) {
     for (let flat = 1; flat <= 6; flat++) {
-      const code = `${floor === 0 ? '' : floor}${flat.toString().padStart(2, '0')}`;
-      const label = floor === 0 ? `Ground ${code}` : `${code}`;
-      flats.push({ value: code.padStart(3, '0'), label });
+      const floorPrefix = floor === 0 ? '' : floor.toString();
+      const flatNum = flat.toString().padStart(2, '0');
+      const code = `${floorPrefix}${flatNum}`.padStart(3, '0');
+      const label = floor === 0 ? `Ground ${flatNum}` : `${code}`;
+      flats.push({ value: code, label });
     }
   }
 
@@ -30,6 +32,7 @@ const AddressForm: React.FC<{ address: Address; setAddress: (address: Address) =
     <div className="mt-6 space-y-4">
       <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Delivery Address</h3>
       
+      {/* Tower Dropdown */}
       <div>
         <label htmlFor="tower" className="block text-sm font-medium text-gray-700">Tower</label>
         <select
@@ -43,6 +46,7 @@ const AddressForm: React.FC<{ address: Address; setAddress: (address: Address) =
         </select>
       </div>
 
+      {/* Combined Floor + Flat Dropdown */}
       <div>
         <label htmlFor="flat" className="block text-sm font-medium text-gray-700">Flat (Floor + Flat No)</label>
         <select
@@ -53,22 +57,46 @@ const AddressForm: React.FC<{ address: Address; setAddress: (address: Address) =
         >
           <option value="">Select Floor + Flat</option>
           {flats.map(f => (
-            <option key={f.value} value={f.value}>
-              {f.label}
-            </option>
+            <option key={f.value} value={f.value}>{f.label}</option>
           ))}
         </select>
       </div>
 
+      {/* Optional Name Field */}
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name (Optional)</label>
+        <input
+          type="text"
+          id="name"
+          value={address.name || ''}
+          onChange={e => setAddress({ ...address, name: e.target.value })}
+          placeholder="Enter name"
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+        />
+      </div>
+
+      {/* Optional Phone Field */}
+      <div>
+        <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone (Optional)</label>
+        <input
+          type="tel"
+          id="phone"
+          value={address.phone || ''}
+          onChange={e => setAddress({ ...address, phone: e.target.value })}
+          placeholder="Enter phone number"
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+        />
+      </div>
+
       {!isFormValid && (
-        <p className="text-red-500 text-xs mt-1">Please fill out all address fields.</p>
+        <p className="text-red-500 text-xs mt-1">Please select both tower and flat.</p>
       )}
     </div>
   );
 };
 
 const CartView: React.FC<CartViewProps> = ({ cart, totalPrice, onClose, onUpdateQuantity, onConfirmOrder, orderStatus, errorMessage, onPlaceAnotherOrder }) => {
-  const [address, setAddress] = useState<Address>({ tower: '', flat: '' });
+  const [address, setAddress] = useState<Address>({ tower: '', flat: '', name: '', phone: '' });
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
   const isFormValid = !!(address.tower && address.flat);
